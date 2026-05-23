@@ -1,0 +1,17 @@
+Dữ liệu ghi dạng: SensorData{sensorId=12, timestamp=171645123123, temperature=25.0, humidity=60.0, pressure=1000.0}
+
+IoT Backpressure Simulator – có ý nghĩa chính là mô phỏng hệ thống thu thập dữ liệu từ cảm biến với nhiều Node và quản lý overload (backpressure). Nói nôm na là:
+
+1️⃣ Producer → LoadBalancer → Node → Queue → Worker → CSV
+
+Mỗi thành phần có ý nghĩa:
+
+Thành phần	Ý nghĩa / Mục tiêu
+Producer	Giả lập cảm biến gửi dữ liệu liên tục. Giúp tạo áp lực (overload) cho hệ thống.
+LoadBalancer	Chia đều dữ liệu tới nhiều Node. Giúp demo distributed system và failover nếu 1 node chết.
+Node	Nhận request từ LoadBalancer. Chứa queue để lưu tạm dữ liệu chờ xử lý.
+Queue	Hàng đợi dữ liệu. Nếu đầy → Node reject request → đây là backpressure.
+Worker	Xử lý dữ liệu từ queue. Giả lập chậm để queue tăng → dễ thấy reject khi overload.
+CSV / Storage	Lưu dữ liệu đã xử lý. Giúp chứng minh dữ liệu không bị mất.
+
+giúp bạn học cách thiết kế hệ thống phân tán xử lý dữ liệu realtime, quản lý queue + overload + backpressure, và thực hành demo distributed node mà không cần công nghệ phức tạp.

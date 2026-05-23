@@ -1,228 +1,136 @@
-# iot-backpressure-simulator
-A real-time distributed system simulator that models IoT sensor data overload and demonstrates backpressure mechanisms in stream processing pipelines.
+IoT Backpressure Simulator (Distributed Queue System)
+📖 Overview
 
+This project simulates a distributed IoT data processing system with backpressure mechanism.
 
-# Backpressure Simulator: IoT Sensor Overload
+It demonstrates how a system handles:
 
-## Project Overview
+High-frequency data from sensors (Producer)
+Load balancing across multiple nodes
+Queue-based buffering
+Backpressure (request rejection when overloaded)
+Asynchronous processing via worker threads
+Data persistence (CSV storage)
+⚙️ System Architecture
+Producer (IoT Sensors)
+↓
+Load Balancer
+↓
+┌───────────────┐
+│   Node 1      │
+│   Queue       │ → Worker → CSV
+├───────────────┤
+│   Node 2      │
+│   Queue       │ → Worker → CSV
+├───────────────┤
+│   Node 3      │
+│   Queue       │ → Worker → CSV
+└───────────────┘
+🚀 Key Features
+✔ Distributed System
+Multiple Node servers (8001, 8002, 8003)
+LoadBalancer distributes requests based on sensorId
+✔ Queue-based Processing
+Each Node has bounded queue (capacity = 5)
+Prevents system overload
+✔ Backpressure Mechanism
+When queue is full → request is rejected (HTTP 503)
+Prevents system crash under high load
+✔ Worker Processing
+Background thread processes queued data
+Simulated delay to demonstrate bottleneck
+✔ Metrics Tracking
 
-This project simulates a distributed IoT sensor data processing system using queue-based backpressure control.
+Each node tracks:
 
-The system is designed to evaluate how backpressure mechanisms help maintain stability when incoming sensor traffic exceeds processing capacity.
-
-Project Category:
-Category 12 – Stream Processing & Real-Time Distributed Databases
-
----
-
-# Objectives
-
-- Simulate real-time IoT sensor traffic
-- Build a distributed multi-node processing system
-- Implement queue-based backpressure
-- Measure system performance under overload conditions
-- Compare:
-    - System without backpressure
-    - System with backpressure
-
----
-
-# System Architecture
-
-```text
-Sensor Producer
-        ↓
- Load Balancer
-        ↓
- ┌─────────────┐
- │ Distributed │
- │    Nodes    │
- └─────────────┘
-   ↓    ↓    ↓
-NodeA NodeB NodeC
-   ↓    ↓    ↓
- Local Storage
-```
-
-## Node Distribution
-
-| Node | SensorID Range |
-|------|----------------|
-| Node A | 1 – 100 |
-| Node B | 101 – 200 |
-| Node C | 201 – 300 |
-
----
-
-#  Technologies Used
-
-- Java
-- Spring Boot
-- REST API
-- ExecutorService
-- SQLite / H2 Database
-- Jackson JSON
-
----
-
-# Project Structure
-
-```bash
-project-root/
-│
+Received requests
+Processed messages
+Rejected messages
+Queue size
+✔ Data Persistence
+Processed data is stored in data.csv
+🧱 Technologies Used
+Java 17+
+Java HTTP Server (com.sun.net.httpserver)
+BlockingQueue (ArrayBlockingQueue)
+Multithreading (Thread, Runnable)
+Java HTTP Client
+📂 Project Structure
+src/main/java/
+├── Main.java
+├── model/
+│   └── SensorData.java
 ├── producer/
-├── load-balancer/
-├── node-a/
-├── node-b/
-├── node-c/
-├── dataset/
-├── docs/
-├── README.md
-└── pom.xml
-```
+│   └── Producer.java
+├── loadbalancer/
+│   └── LoadBalancer.java
+└── node/
+├── └── NodeServer.java
+├── └── QueueWorker.java
+├── └── Metrics.java
+└── └── CsvStorage.java
+▶️ How to Run
+1️⃣ Compile project
+javac -d out (Get-ChildItem -Recurse -Filter *.java).FullName
+2️⃣ Run system
+java -cp out Main
+🧪 How to Test
 
----
+After running Main:
 
-# Dataset
+✔ Producer sends data continuously
+Simulates IoT sensors generating data
+✔ LoadBalancer distributes requests
+Routes based on sensorId:
+0–100 → Node 8001
+101–200 → Node 8002
+201–300 → Node 8003
+✔ Node behavior
 
-Synthetic IoT sensor data generated automatically.
+You will observe:
 
-## Dataset Schema
+📌 Accepted requests
+ACCEPTED
+📌 Backpressure (queue full)
+QUEUE FULL - REJECTED (503)
+📌 Worker processing
+Processed ID: 45 | Queue size: 3
+📊 Metrics Example
 
-- SensorID
-- Timestamp
-- Temperature
-- Humidity
-- Pressure
+Each node prints:
 
-## Dataset Size
+[NODE 8001] Received=120 Processed=110 Rejected=10 Queue=5
+💥 Key Concepts Demonstrated
+1. Backpressure
 
-- 200,000 – 500,000 records
+When system is overloaded:
 
----
+Queue becomes full
+New requests are rejected
+System remains stable
+2. Distributed Processing
+   Multiple nodes process data independently
+   Load is shared across nodes
+3. Asynchronous Processing
+   Producer ≠ Worker speed
+   Queue buffers mismatch
+4. Fault Tolerance (basic)
+   System continues working even if one node stops
+   📌 Why this project matters
 
-# Backpressure Mechanism
+This project demonstrates real-world system concepts used in:
 
-Each node maintains a processing queue.
+Kafka-like systems
+Microservices architecture
+IoT data pipelines
+High-throughput backend systems
+📈 Possible Improvements
+Add health check for nodes
+Implement retry mechanism in LoadBalancer
+Add dynamic scaling for workers
+Replace CSV with database storage
+Add monitoring dashboard
 
-When queue length exceeds a threshold:
-- The node rejects new requests
-  OR
-- Sends a slowdown signal to the producer
-
-The producer dynamically adjusts sending speed based on node feedback.
-
-This feedback loop helps prevent overload and stabilizes the distributed system.
-
----
-
-# How to Run
-
-## 1. Clone Repository
-
-```bash
-git clone <repository-url>
-cd project-root
-```
-
----
-
-## 2. Run Node A
-
-```bash
-cd node-a
-mvn spring-boot:run
-```
-
----
-
-## 3. Run Node B
-
-```bash
-cd node-b
-mvn spring-boot:run
-```
-
----
-
-## 4. Run Node C
-
-```bash
-cd node-c
-mvn spring-boot:run
-```
-
----
-
-## 5. Run Load Balancer
-
-```bash
-cd load-balancer
-mvn spring-boot:run
-```
-
----
-
-## 6. Run Producer
-
-```bash
-cd producer
-mvn spring-boot:run
-```
-
----
-
-#  Failure Simulation
-
-## 1. Burst Traffic
-
-Suddenly increase producer sending rate.
-
-## 2. Node Overload
-
-Add processing delay to queue consumers.
-
-## 3. Node Failure
-
-Stop one node during processing.
-
----
-
-#  Metrics Collected
-
-- Throughput
-- Latency
-- Queue Length
-- Drop Rate
-
----
-
-#  Demo Scenarios
-
-The demo video demonstrates:
-- Normal traffic processing
-- Traffic overload
-- Backpressure activation
-- Queue growth
-- Node failure handling
-- Performance comparison
-
----
-
-#  Team Information
-
-## Team Name
-NIKA
-
-## Team Member
-Nguyễn Khánh Huyền
-
----
-
-# References
-
-- Özsu, M. Tamer & Valduriez, Patrick
-  Principles of Distributed Database Systems
-
-- Spring Boot Documentation
-- Java Concurrency Documentation
+👨‍💻 Author
+Student project – Distributed Systems / IoT Simulation
+Focus: Backpressure, Queueing, Load Balancing
