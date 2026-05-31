@@ -1,6 +1,6 @@
-# iot-backpressure-simulator
-A real-time distributed system simulator that demonstrates backpressure, load balancing, and queue-based stream processing in IoT environments.
+# IoT Backpressure Simulator
 
+A real-time distributed system simulator demonstrating backpressure, load balancing, and queue-based stream processing in IoT environments.
 # Backpressure Simulator: IoT Sensor Overload
 
 ## Project Overview
@@ -24,19 +24,19 @@ Category 12 – Stream Processing & Real-Time Distributed Databases
 # System Architecture
 
 ```text
-
-IoT Sensor Producer
-        ↓
- Load Balancer
-        ↓
- ┌─────────────┐
- │ Distributed │
- │    Nodes    │
- └─────────────┘
-   ↓    ↓    ↓
-NodeA NodeB NodeC
-   ↓    ↓    ↓
- Local Storage
+IoT Sensor ProducerProducer
+         ↓
+    Load Balancer
+         ↓
+ ┌───────┬───────┬
+ ↓       ↓       ↓
+NodeA   NodeB   NodeC
+ ↓       ↓       ↓
+Queue   Queue   Queue
+ ↓       ↓       ↓
+Worker  Worker  Worker
+          ↓
+      CSV Storage
 ```
 
 ## Node Distribution
@@ -74,7 +74,10 @@ Asynchronous Workers
 - Background threads process queue 
 - Simulated delay mimics real bottlenecks
 
-Metrics Tracking: Each node monitors:
+### Metrics Tracking
+
+Each node monitors:
+
 - Received requests
 - Processed messages
 - Rejected requests
@@ -82,14 +85,13 @@ Metrics Tracking: Each node monitors:
 
 
 Data Persistence
-- Processed results stored in data.csv or databas
+- Processed results stored in data.csv or database.
 ---
 
 #  Technologies Used
 
 - Java 17+
 - HTTP Server (com.sun.net.httpserver)
-- Spring Boot (optional version)
 - BlockingQueue (ArrayBlockingQueue)
 - Multithreading (Thread / Runnable)
 - Java HTTP Client
@@ -127,7 +129,8 @@ Schema:
 - Humidity
 - Pressure
 
-Scale: 200,000 – 500,000 records
+Scale: configurable
+Typical demo: 10,000+ records
 ## Backpressure Mechanism
 
 Each node maintains a bounded queue.
@@ -143,29 +146,19 @@ System Feedback Loop: Producer → Load → Queue → Backpressure Signal → Pr
 ## 1. Clone Repository
 
 ```bash
-git clone <repository-url>
-cd project-root
+git clone https://github.com/isnika/iot-backpressure-simulator.git
+cd iot-backpressure-simulator
 ```
 
 ---
 
-## 2. Start Nodes
+## 2. Run 
 
 ```bash
-    cd node-a && mvn spring-boot:run
-    
-    cd node-b && mvn spring-boot:run
-    
-    cd node-c && mvn spring-boot:run
+javac -d out src/main/java/**/*.java
+java -cp out Main
 ```
-
-## 3. Start System Core
-
-```bash
-    cd load-balancer && mvn spring-boot:run
-
-    cd producer && mvn spring-boot:run
-```    
+ 
 ---
 ## Failure Simulation
 1. Burst Traffic
@@ -185,6 +178,46 @@ Stop one node during runtime
 - Latency
 - Queue Length
 - Drop Rate
+
+### Metrics Example
+
+```text
+Node A
+---------
+Received Requests : 1250
+Processed Messages: 1210
+Rejected Requests : 40
+Queue Size        : 0
+
+Node B
+---------
+Received Requests : 1180
+Processed Messages: 1160
+Rejected Requests : 20
+Queue Size        : 0
+
+Node C
+---------
+Received Requests : 1320
+Processed Messages: 1285
+Rejected Requests : 35
+Queue Size        : 0
+```
+### Demo Output
+
+```text
+Node started on port 8001
+Node started on port 8002
+Node started on port 8003
+
+Processed ID: 162 | queue=5
+Processed ID: 99  | queue=5
+
+[BACKPRESSURE] Sensor 161 slowed down
+
+Processed ID: 203 | queue=4
+Processed ID: 230 | queue=4
+```
 ---
 ## Key Concepts Demonstrated
 - Backpressure in distributed systems
@@ -209,9 +242,16 @@ It demonstrates production-level system design thinking.
 - System overload
 - Backpressure activation
 - Queue buildup visualization
--Node failure handling
+- Node failure handling
 - Performance comparison
 ---
+## Achievements
+
+- Simulated 10,000+ IoT events
+- Implemented bounded-queue backpressure mechanism
+- Demonstrated overload protection using HTTP 503 responses
+- Distributed workload across multiple processing nodes
+- Collected throughput, latency, queue length and drop-rate metrics
 
 #  Team Information
 
