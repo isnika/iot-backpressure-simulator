@@ -7,8 +7,12 @@ import java.util.Random;
 
 public class Producer {
 
-    private final LoadBalancer lb = new LoadBalancer();
+    private final LoadBalancer lb;
     private final Random rand = new Random();
+
+    public Producer(LoadBalancer lb) {
+        this.lb = lb;
+    }
 
     public void start() throws Exception {
 
@@ -21,9 +25,19 @@ public class Producer {
                     1000 + rand.nextDouble() * 50
             );
 
-            lb.route(data);
+            boolean accepted = lb.route(data);
 
-            Thread.sleep(20); // overload
+            if (!accepted) {
+                System.out.println(
+                        "[BACKPRESSURE] Sensor "
+                                + data.sensorId
+                                + " slowed down"
+                );
+
+                Thread.sleep(200);
+            } else {
+                Thread.sleep(1);
+            }
         }
     }
 }

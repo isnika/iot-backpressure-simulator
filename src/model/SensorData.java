@@ -1,22 +1,21 @@
 package model;
 
 public class SensorData {
+
     public int sensorId;
-    public long timestamp;
-    public double temperature, humidity, pressure;
+    public double temp;
+    public double humidity;
+    public double pressure;
 
-    public SensorData() {}
-
-    public SensorData(int sensorId, double temp, double hum, double press) {
+    public SensorData(
+            int sensorId,
+            double temp,
+            double humidity,
+            double pressure
+    ) {
         this.sensorId = sensorId;
-        this.timestamp = System.currentTimeMillis();
-        this.temperature = temp;
-        this.humidity = hum;
-        this.pressure = press;
-    }
-
-    @Override
-    public String toString() {
-        return sensorId + "," + timestamp + "," + temperature + "," + humidity + "," + pressure;
+        this.temp = temp;
+        this.humidity = humidity;
+        this.pressure = pressure;
     }
 }

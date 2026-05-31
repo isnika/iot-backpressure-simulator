@@ -1,3 +1,4 @@
+import loadbalancer.LoadBalancer;
 import node.NodeServer;
 import producer.Producer;
 
@@ -5,23 +6,14 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
 
-        new Thread(() -> {
-            try { new NodeServer(8001).start(); }
-            catch (Exception e) { e.printStackTrace(); }
-        }).start();
+        LoadBalancer lb = new LoadBalancer();
 
-        new Thread(() -> {
-            try { new NodeServer(8002).start(); }
-            catch (Exception e) { e.printStackTrace(); }
-        }).start();
+        lb.addNode(new NodeServer(8001));
+        lb.addNode(new NodeServer(8002));
+        lb.addNode(new NodeServer(8003));
 
-        new Thread(() -> {
-            try { new NodeServer(8003).start(); }
-            catch (Exception e) { e.printStackTrace(); }
-        }).start();
+        Producer producer = new Producer(lb);
 
-        Thread.sleep(1000);
-
-        new Producer().start();
+        producer.start();
     }
 }
